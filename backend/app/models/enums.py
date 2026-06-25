@@ -34,3 +34,21 @@ class CaseStatus(str, enum.Enum):
     ESCALATED = "escalated"
     RESOLVED = "resolved"
 
+class Action(str, enum.Enum):
+    APPROVE = "approve"
+    REMOVE = "remove"
+    WARN = "warn"
+    RESTRICT = "restrict"
+    ESCALATE = "escalate"
+    REQUEST_INFO = "request_info"
+
+class ConfidenceLevel(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+class EscalationType(str, enum.Enum):
+    SENIOR_REVIEW = "senior_review"
+    POLICY_REVIEW = "policy_review"
+    LEGAL = "legal"
+    QUALITY_CHECK = "quality_check"
