@@ -4,12 +4,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import func, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB, INET
 from app.core.database import Base
-from app.models.enums import EntityType
+from app.models.enums import enum_column, EntityType
 
 class AuditLog(Base):
     __tablename__ = 'audit_logs'
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    entity_type: Mapped[EntityType] = mapped_column()
+    entity_type: Mapped[EntityType] = enum_column(EntityType)
     entity_id: Mapped[uuid.UUID] = mapped_column()
     action: Mapped[str] = mapped_column()
     actor_id: Mapped[uuid.UUID| None] = mapped_column(ForeignKey("users.id"))
