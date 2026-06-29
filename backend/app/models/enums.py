@@ -52,3 +52,10 @@ class EscalationType(str, enum.Enum):
     POLICY_REVIEW = "policy_review"
     LEGAL = "legal"
     QUALITY_CHECK = "quality_check"
+
+class EntityType(str, enum.Enum):
+    CASE = "case"
+    USER = "user"
+    QUEUE = "queue"
+    DECISION = "decision"
+    ESCALATION = "escalation"
