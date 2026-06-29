@@ -1,1 +1,13 @@
 Generic single-database configuration.
+
+## Development Notes
+
+### Enum types in migrations
+SQLAlchemy's `sa.Enum` registers DDL events that ignore `create_type=False`
+in SQLAlchemy 2.0. Always use `postgresql.ENUM` from
+`sqlalchemy.dialects.postgresql` for Postgres enum columns in both models
+(via the `enum_column` helper) and migration files.
+
+First migration to create a type: use `sa.Enum(...)` as normal.
+Subsequent migrations reusing an existing type:
+`postgresql.ENUM(name='typename', create_type=False)`
