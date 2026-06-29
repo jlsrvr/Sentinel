@@ -1,10 +1,15 @@
 import enum
-from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import mapped_column
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
+
 
 def enum_column(enum_class, **kwargs):
     return mapped_column(
-        SAEnum(enum_class, values_callable=lambda x: [e.value for e in x]),
+        PgEnum(
+            *[e.value for e in enum_class],
+            name=enum_class.__name__.lower(),
+            create_type=False
+        ),
         **kwargs
     )
 
