@@ -1,29 +1,45 @@
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.core.database import Base, get_db
+from sqlalchemy import create_engine, event
+from sqlalchemy.orm import Session
 from app.core.config import Settings
+from app.core.database import get_db
 from main import app
 
 test_settings = Settings(_env_file='.env.test')
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def engine():
-    engine = create_engine(test_settings.database_url)
-    Base.metadata.create_all(engine)
-    yield engine
-    Base.metadata.drop_all(engine)
+    alembic_cfg = Config("alembic.ini")
+    alembic_cfg.set_main_option("sqlalchemy.url", test_settings.database_url)
+    command.downgrade(alembic_cfg, "base")
+    command.upgrade(alembic_cfg, "head")
+    yield create_engine(test_settings.database_url)
+    command.downgrade(alembic_cfg, "base")
 
 @pytest.fixture
 def db(engine):
-    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)()
+    connection = engine.connect()
+    transaction = connection.begin()
+    session = Session(autocommit=False, autoflush=False, bind=connection)
+    nested = connection.begin_nested()
+
+    @event.listens_for(session, "after_transaction_end")
+    def restart_savepoint(session, transaction):
+        if transaction.nested and not transaction._parent.nested:
+            connection.begin_nested()
+
     yield session
-    session.rollback()
     session.close()
+    transaction.rollback()
+    connection.close()
 
 @pytest.fixture
 def client(db):
-    app.dependency_overrides[get_db] = lambda: db
+    def override_get_db():
+        yield db
+    app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides = {}
