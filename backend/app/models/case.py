@@ -19,7 +19,7 @@ class Case(Base):
     assigned_to: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     assigned_at: Mapped[datetime.datetime | None] = mapped_column()
     sla_deadline: Mapped[datetime.datetime | None] = mapped_column()
-    source: Mapped[str | None] = mapped_column()
+    source: Mapped[str] = mapped_column()
     case_metadata: Mapped[list] = mapped_column(JSONB)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
