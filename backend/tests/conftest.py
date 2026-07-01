@@ -45,11 +45,6 @@ def client(db):
     yield TestClient(app)
     app.dependency_overrides = {}
 
-@pytest.fixture(autouse=True)
-def set_factory_session(db):
-    QueueFactory._meta.sqlalchemy_session = db
-    CaseFactory._meta.sqlalchemy_session = db
-
 @pytest.fixture
 def queue_factory():
     return QueueFactory
