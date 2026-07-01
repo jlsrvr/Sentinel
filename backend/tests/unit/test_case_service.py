@@ -1,5 +1,8 @@
+import pytest
+from tests.factories import CaseFactory
 from app.models.enums import CaseStatus
-from app.services.case import can_transition
+from app.services.case import can_transition, transition
+from app.core.exceptions import InvalidTransitionError
 
 def test_unassigned_can_transition_to_assigned():
     assert can_transition(CaseStatus.UNASSIGNED, CaseStatus.ASSIGNED) is True
@@ -28,3 +31,21 @@ def test_assigned_cannot_transition_to_unassigned():
 def test_resolved_cannot_transition_to_anything():
     for status in CaseStatus:
         assert can_transition(CaseStatus.RESOLVED, status) is False
+
+def test_transition_updates_the_case_status():
+    case = CaseFactory.build(status=CaseStatus.UNASSIGNED)
+    target_status = CaseStatus.ASSIGNED
+
+    transition(case, target_status)
+
+    assert case.status == target_status
+
+def test_transition_raises_exception_when_transition_invalid():
+    starting_status = CaseStatus.ASSIGNED
+    case = CaseFactory.build(status = starting_status)
+    target_status = CaseStatus.UNASSIGNED
+
+    with pytest.raises(InvalidTransitionError) as e_info:
+        transition(case, target_status)
+    assert starting_status.value in str(e_info.value).lower()
+    assert target_status.value in str(e_info.value).lower()
