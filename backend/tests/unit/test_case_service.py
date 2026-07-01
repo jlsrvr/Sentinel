@@ -1,4 +1,6 @@
 import pytest
+from freezegun import freeze_time
+from datetime import datetime
 from tests.factories import CaseFactory
 from app.models.enums import CaseStatus
 from app.services.case import can_transition, transition
@@ -49,3 +51,22 @@ def test_transition_raises_exception_when_transition_invalid():
         transition(case, target_status)
     assert starting_status.value in str(e_info.value).lower()
     assert target_status.value in str(e_info.value).lower()
+
+@freeze_time("2024-01-15 10:00:00")
+def test_transition_to_assigned_sets_assigned_at():
+    case = CaseFactory.build(status=CaseStatus.UNASSIGNED)
+
+    transition(case, CaseStatus.ASSIGNED)
+
+    assert case.assigned_at == datetime(2024, 1, 15, 10, 0, 0)
+    assert case.resolved_at == None
+
+@freeze_time("2024-01-15 10:00:00")
+def test_transition_to_resolved_sets_resolved_at():
+    assigned_at = datetime(2024, 1, 9, 10, 0, 0)
+    case = CaseFactory.build(status=CaseStatus.IN_REVIEW, assigned_at=assigned_at)
+
+    transition(case, CaseStatus.RESOLVED)
+
+    assert case.assigned_at == assigned_at
+    assert case.resolved_at == datetime(2024, 1, 15, 10, 0, 0)
