@@ -6,7 +6,8 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from app.core.config import Settings
 from app.core.database import get_db
-from tests.factories import QueueFactory, CaseFactory
+from tests.factories import QueueFactory, CaseFactory, UserFactory
+from app.core.dependencies import get_current_user_id
 from main import app
 
 test_settings = Settings(_env_file='.env.test')
@@ -46,9 +47,25 @@ def client(db):
     app.dependency_overrides = {}
 
 @pytest.fixture
+def authenticated_client(db):
+    user = UserFactory.create()
+    def override_get_db():
+        yield db
+    def override_get_current_user_id():
+        return user.id
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user_id] = override_get_current_user_id
+    yield TestClient(app)
+    app.dependency_overrides = {}
+
+@pytest.fixture
 def queue_factory():
     return QueueFactory
 
 @pytest.fixture
 def case_factory():
     return CaseFactory
+
+@pytest.fixture
+def user_factory():
+    return UserFactory

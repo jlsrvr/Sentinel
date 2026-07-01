@@ -1,7 +1,8 @@
 import factory
 from app.models.queue import Queue
 from app.models.case import Case
-from app.models.enums import ContentType, Severity, CaseStatus
+from app.models.user import User
+from app.models.enums import ContentType, Severity, CaseStatus, Role
 
 class QueueFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -28,3 +29,15 @@ class CaseFactory(factory.alchemy.SQLAlchemyModelFactory):
     queue_id = factory.LazyAttribute(lambda obj: obj.queue.id)
     source = "user_report"
     case_metadata = []
+
+
+class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = User
+        sqlalchemy_session_persistence = "flush"
+
+    email = factory.Sequence(lambda n: f"user{n}@example.com")
+    hashed_password = 'hashed+password'
+    full_name = 'Test User'
+    role = Role.ANALYST
+    skills = []
