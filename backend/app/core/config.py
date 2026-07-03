@@ -7,5 +7,6 @@ class Settings(BaseSettings):
     secret_key: str
     environment: str = "development"
     debug: bool = True
+    cors_origins: list[str] = ["http://localhost:5173"]
 
 settings = Settings()
