@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCase, useDecisions } from '../hooks/useCases';
+import { formatLabel } from '../utils/format';
 import type { Severity, CaseStatus } from '../types/case';
+
 
 const SEVERITY_PILL: Record<Severity, string> = {
     critical: 'bg-red-100 text-red-800',
@@ -23,10 +25,6 @@ function formatDate(iso: string | null): string {
         day: '2-digit', month: 'short', year: 'numeric',
         hour: '2-digit', minute: '2-digit',
     });
-}
-
-function formatLabel(value: string): string {
-    return value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 function formatSla(sla: string | null): { label: string; className: string } {
@@ -96,7 +94,8 @@ export default function CaseDetailPage() {
                                 <DetailRow label="Case ID">{c.external_id}</DetailRow>
                                 <DetailRow label="Content type">{c.content_type}</DetailRow>
                                 <DetailRow label="Source">{formatLabel(c.source)}</DetailRow>
-                                <DetailRow label="Queue">{c.queue_id}</DetailRow> # TODO: Replace with queue name when available
+                                {/* TODO: Replace with queue name when available */}
+                                <DetailRow label="Queue">{c.queue_id}</DetailRow>
                                 <DetailRow label="Assigned to">{c.assigned_to ?? '—'}</DetailRow>
                                 <DetailRow label="Assigned at">{formatDate(c.assigned_at ?? null)}</DetailRow>
                                 <DetailRow label="SLA deadline">

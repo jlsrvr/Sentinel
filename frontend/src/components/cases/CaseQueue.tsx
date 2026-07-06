@@ -1,6 +1,7 @@
 import { useCases } from '../../hooks/useCases';
 import { useNavigate } from 'react-router-dom';
 import type { Case, Severity, CaseStatus } from '../../types/case';
+import { formatLabel } from '../../utils/format';
 
 const SEVERITY_PILL: Record<Severity, string> = {
     critical: 'bg-red-100 text-red-800',
@@ -61,7 +62,7 @@ function CaseRow({ c }: { c: Case }) {
                 </span>
             </td>
             <td className="px-4 py-3 text-sm text-gray-400">{c.content_type}</td>
-            <td className="px-4 py-3 text-sm text-gray-400">{c.source}</td>
+            <td className="px-4 py-3 text-sm text-gray-400">{formatLabel(c.source)}</td>
         </tr>
     );
 }
