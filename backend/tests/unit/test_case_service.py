@@ -1,9 +1,10 @@
+import uuid
 import pytest
 from freezegun import freeze_time
 from datetime import datetime
 from tests.factories import CaseFactory
 from app.models.enums import CaseStatus
-from app.services.case import can_transition, transition
+from app.services.case import can_transition, transition, assign
 from app.core.exceptions import InvalidTransitionError
 
 def test_unassigned_can_transition_to_assigned():
@@ -70,3 +71,13 @@ def test_transition_to_resolved_sets_resolved_at():
 
     assert case.assigned_at == assigned_at
     assert case.resolved_at == datetime(2024, 1, 15, 10, 0, 0)
+
+@freeze_time("2024-01-15 10:00:00")
+def test_assign_sets_reviewer_id():
+    case = CaseFactory.build(status=CaseStatus.UNASSIGNED)
+    reviewer_id = uuid.uuid4
+
+    assign(case, reviewer_id)
+
+    assert case.assigned_at == datetime(2024, 1, 15, 10, 0, 0)
+    assert case.assigned_to == reviewer_id

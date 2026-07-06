@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from app.models.enums import CaseStatus
 from app.models.case import Case
@@ -26,3 +27,7 @@ def transition(case: Case, target_status: CaseStatus):
     side_effect = TRANSITION_SIDE_EFFECTS.get(target_status)
     if side_effect:
         side_effect(case)
+
+def assign(case: Case, reviewer_id: uuid.UUID):
+    transition(case, CaseStatus.ASSIGNED)
+    case.assigned_to = reviewer_id
