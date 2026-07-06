@@ -5,6 +5,10 @@ from sqlalchemy.orm import Session
 from app.models.case import Case
 from app.core.database import get_db
 from app.schemas.case import CaseListResponse, CaseDetailResponse
+from app.models.enums import CaseStatus
+from app.services.case import can_transition, transition, assign
+from app.core.dependencies import get_current_user_id
+from app.core.exceptions import InvalidTransitionError
 
 router = APIRouter(prefix="/cases", tags=["cases"])
 
@@ -21,3 +25,19 @@ async def case_details(case_id: uuid.UUID, db: Session = Depends(get_db)):
     if case:
         return case
     raise HTTPException(status_code=404, detail="Item not found")
+
+@router.post("/{case_id}/assign", status_code=201)
+def assign_case(
+    case_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    reviewer_id: uuid.UUID = Depends(get_current_user_id)
+):
+    case_query = select(Case).where(Case.id == case_id)
+    case = db.execute(case_query).scalars().first()
+    if case is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    try:
+        assign(case, reviewer_id)
+    except (InvalidTransitionError, ValueError) as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    db.flush()

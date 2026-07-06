@@ -1,4 +1,7 @@
 import uuid
+from datetime import datetime
+from freezegun import freeze_time
+from app.models.enums import CaseStatus
 
 def test_list_cases_empty(client):
     response = client.get("/api/v1/cases/")
@@ -70,3 +73,34 @@ def test_case_details_returns_correct_fields(client, case_factory):
     assert 'created_at' in data
     assert 'updated_at' in data
     assert 'resolved_at' in data
+
+def test_case_assign_returns_201_when_valid(authenticated_client, case_factory):
+    case = case_factory.create(status=CaseStatus.UNASSIGNED)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/assign")
+
+    assert response.status_code == 201
+
+@freeze_time("2024-01-15 10:00:00")
+def test_case_assign_persists_assignement(authenticated_client, case_factory, db):
+    case = case_factory.create(status=CaseStatus.UNASSIGNED)
+
+    authenticated_client.post(f"/api/v1/cases/{case.id}/assign")
+
+    db.refresh(case)
+    assert case.assigned_at == datetime(2024, 1, 15, 10, 0, 0)
+    assert case.assigned_to is not None
+
+def test_case_assign_returns_404_when_case_non_existant(authenticated_client):
+    case_id = str(uuid.uuid4())
+
+    response = authenticated_client.post(f"/api/v1/cases/{case_id}/assign")
+
+    assert response.status_code == 404
+
+def test_case_assign_returns_409_when_case_not_unassigned(authenticated_client, case_factory):
+    case = case_factory.create(status=CaseStatus.IN_REVIEW)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/assign")
+
+    assert response.status_code == 409
