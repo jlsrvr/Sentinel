@@ -7,7 +7,7 @@ from app.models.case import Case
 from app.models.decision import Decision
 from app.models.enums import CaseStatus
 from app.core.database import get_db
-from app.schemas.decision import DecisionCreateRequest
+from app.schemas.decision import DecisionCreateRequest, DecisionListResponse
 from app.core.dependencies import get_current_user_id
 
 router = APIRouter(prefix="/cases/{case_id}/decisions", tags=["decisions"])
@@ -38,3 +38,9 @@ async def create_decision(
     )
     db.add(decision)
     db.flush()
+
+@router.get("/", response_model=list[DecisionListResponse])
+async def list_decision(case_id: uuid.UUID, db: Session = Depends(get_db)):
+    query = select(Decision).where(Decision.case_id == case_id )
+    decisions = db.execute(query).scalars().all()
+    return decisions
