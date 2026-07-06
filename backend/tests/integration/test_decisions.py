@@ -50,3 +50,51 @@ def test_decision_create_returns_409_when_case_not_in_review(authenticated_clien
     response = authenticated_client.post(f"/api/v1/cases/{case.id}/decisions", json=VALID_DECISION_BODY)
 
     assert response.status_code == 409
+
+def test_list_decisions_wrong_case(client):
+    case_id = str(uuid.uuid4())
+
+    response = client.get(f"/api/v1/cases/{case_id}/decisions")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+def test_list_decisions_no_decisions(client, case_factory):
+    case = case_factory.create(external_id="ext-1")
+
+    response = client.get(f"/api/v1/cases/{case.id}/decisions")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+def test_list_decisions_returns_correct_shape(client, decision_factory):
+    decision = decision_factory.create()
+    case_id = decision.case_id
+
+    response = client.get(f"/api/v1/cases/{case_id}/decisions")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["case_id"] == str(case_id)
+    assert "reviewer_id" in data[0]
+    assert "action" in data[0]
+    assert "rationale" in data[0]
+    assert "policy_reference" in data[0]
+    assert "confidence" in data[0]
+    assert "time_on_case_secs" in data[0]
+    assert "created_at" in data[0]
+
+def test_list_decisions_returns_decisions_for_correct_case(client, case_factory, decision_factory):
+    first_case = case_factory.create(external_id="ext-1")
+    second_case = case_factory.create(external_id="ext-2")
+    correct_case_id = first_case.id
+    decision_factory.create(case_id=correct_case_id)
+    decision_factory.create(case_id=second_case.id)
+
+    response = client.get(f"/api/v1/cases/{correct_case_id}/decisions")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["case_id"] == str(correct_case_id)

@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 from app.core.config import Settings
 from app.core.database import get_db
-from tests.factories import QueueFactory, CaseFactory, UserFactory
+from tests.factories import QueueFactory, CaseFactory, UserFactory, DecisionFactory
 from app.core.dependencies import get_current_user_id
 from main import app
 
@@ -69,3 +69,7 @@ def case_factory():
 @pytest.fixture
 def user_factory():
     return UserFactory
+
+@pytest.fixture
+def decision_factory():
+    return DecisionFactory

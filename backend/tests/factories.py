@@ -2,7 +2,8 @@ import factory
 from app.models.queue import Queue
 from app.models.case import Case
 from app.models.user import User
-from app.models.enums import ContentType, Severity, CaseStatus, Role
+from app.models.decision import Decision
+from app.models.enums import ContentType, Severity, CaseStatus, Role, Action, ConfidenceLevel
 
 class QueueFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -41,3 +42,18 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
     full_name = 'Test User'
     role = Role.ANALYST
     skills = []
+
+class DecisionFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Decision
+        sqlalchemy_session_persistence = "flush"
+        exclude = ("case", "reviewer")
+
+    case = factory.SubFactory(CaseFactory)
+    case_id = factory.LazyAttribute(lambda obj: obj.case.id)
+    reviewer = factory.SubFactory(UserFactory)
+    reviewer_id = factory.LazyAttribute(lambda obj: obj.reviewer.id)
+    action = Action.WARN
+    rationale = 'Its seems legitimate but better warn them'
+    confidence = ConfidenceLevel.MEDIUM
+    time_on_case_secs = 360
