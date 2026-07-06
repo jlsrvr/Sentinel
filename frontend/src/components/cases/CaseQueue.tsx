@@ -1,4 +1,5 @@
 import { useCases } from '../../hooks/useCases';
+import { useNavigate } from 'react-router-dom';
 import type { Case, Severity, CaseStatus } from '../../types/case';
 
 const SEVERITY_PILL: Record<Severity, string> = {
@@ -38,8 +39,10 @@ function SummaryCard({ label, value, danger }: { label: string; value: number; d
 
 function CaseRow({ c }: { c: Case }) {
     const sla = formatSla(c.sla_deadline);
+    const navigate = useNavigate();
+
     return (
-        <tr className="hover:bg-gray-50 cursor-pointer transition-colors">
+        <tr onClick={() => navigate(`/cases/${c.id}`)} className="hover:bg-gray-50 cursor-pointer transition-colors">
             <td className="px-4 py-3">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium uppercase tracking-wide ${SEVERITY_PILL[c.severity]}`}>
                     {c.severity}

@@ -11,5 +11,10 @@ export interface Case {
     source: string;
     queue_id: string;
     assigned_to: string | null;
+    assigned_at: string | null;
+    content_snapshot: string | null;
+    created_at: string;
+    updated_at: string;
+    resolved_at: string | null;
     sla_deadline: string | null;
 }
