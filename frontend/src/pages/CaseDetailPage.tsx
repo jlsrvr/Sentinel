@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAssignCase, useCase, useDecisions, useStartReview } from '../hooks/useCases';
 import { formatLabel } from '../utils/format';
 import type { Severity, CaseStatus } from '../types/case';
+import { DecisionForm } from '../components/cases/DecisionForm';
 
 
 const SEVERITY_PILL: Record<Severity, string> = {
@@ -181,6 +182,8 @@ export default function CaseDetailPage() {
                         </table>
                     )}
                 </div>
+
+                {c.status === 'in_review' && <DecisionForm caseId={id!} />}
 
                 <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                     <div className="px-5 py-4 border-b border-gray-100">

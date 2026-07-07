@@ -44,4 +44,19 @@ async function startReview(caseId: string): Promise<void> {
     if (!response.ok) throw new Error('Failed to start review');
 }
 
-export { fetchCases, fetchCase, fetchDecisions, assignCase, startReview };
+async function submitDecision(caseId: string, body: {
+    action: string;
+    confidence: string;
+    rationale: string;
+    policy_reference: string | null;
+    time_on_case_secs: number;
+}): Promise<void> {
+    const response = await fetch(`${BASE_URL}/api/v1/cases/${caseId}/decisions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+    if (!response.ok) throw new Error('Failed to submit decision');
+}
+
+export { fetchCases, fetchCase, fetchDecisions, assignCase, startReview, submitDecision };
