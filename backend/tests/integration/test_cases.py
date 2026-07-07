@@ -104,3 +104,32 @@ def test_case_assign_returns_409_when_case_not_unassigned(authenticated_client, 
     response = authenticated_client.post(f"/api/v1/cases/{case.id}/assign")
 
     assert response.status_code == 409
+
+def test_start_review_returns_201_when_valid(authenticated_client, case_factory):
+    case = case_factory.create(status=CaseStatus.ASSIGNED)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/start_review")
+
+    assert response.status_code == 201
+
+def test_start_review_persists_assignement(authenticated_client, case_factory, db):
+    case = case_factory.create(status=CaseStatus.ASSIGNED)
+
+    authenticated_client.post(f"/api/v1/cases/{case.id}/start_review")
+
+    db.refresh(case)
+    assert case.status == CaseStatus.IN_REVIEW
+
+def test_start_review_returns_404_when_case_non_existant(authenticated_client):
+    case_id = str(uuid.uuid4())
+
+    response = authenticated_client.post(f"/api/v1/cases/{case_id}/start_review")
+
+    assert response.status_code == 404
+
+def test_start_review_returns_409_when_case_not_assigned(authenticated_client, case_factory):
+    case = case_factory.create(status=CaseStatus.IN_REVIEW)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/start_review")
+
+    assert response.status_code == 409
