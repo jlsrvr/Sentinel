@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchCases, fetchCase, fetchDecisions } from '../api/cases';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchCases, fetchCase, fetchDecisions, assignCase } from '../api/cases';
 import type { Case } from '../types/case';
 import type { Decision } from '../types/decision';
 
@@ -21,5 +21,15 @@ export function useDecisions(caseId: string) {
     return useQuery<Decision[]>({
         queryKey: ['decisions', caseId],
         queryFn: () => fetchDecisions(caseId),
+    });
+}
+
+export function useAssignCase(caseId: string) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: () => assignCase(caseId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['case', caseId] });
+        },
     });
 }

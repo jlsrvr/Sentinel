@@ -30,4 +30,11 @@ async function fetchDecisions(caseId: string): Promise<Decision[]> {
     return data as Decision[];
 }
 
-export { fetchCases, fetchCase, fetchDecisions };
+async function assignCase(caseId: string): Promise<void> {
+    const response = await fetch(`${BASE_URL}/api/v1/cases/${caseId}/assign`, {
+        method: 'POST'
+    });
+    if (!response.ok) throw new Error('Failed to assign case');
+}
+
+export { fetchCases, fetchCase, fetchDecisions, assignCase };

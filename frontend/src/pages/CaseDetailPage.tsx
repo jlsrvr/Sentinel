@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useCase, useDecisions } from '../hooks/useCases';
+import { useAssignCase, useCase, useDecisions } from '../hooks/useCases';
 import { formatLabel } from '../utils/format';
 import type { Severity, CaseStatus } from '../types/case';
 
@@ -58,6 +58,8 @@ export default function CaseDetailPage() {
     const navigate = useNavigate();
     const { data: c, isLoading: caseLoading, error: caseError } = useCase(id!);
     const { data: decisions, isLoading: decisionsLoading } = useDecisions(id!);
+    const { mutate: assignCase, isPending } = useAssignCase(id!);
+
 
     if (caseLoading) return <div className="min-h-screen bg-gray-50 p-8"><p className="text-sm text-gray-400">Loading case...</p></div>;
     if (caseError || !c) return <div className="min-h-screen bg-gray-50 p-8"><p className="text-sm text-red-600">Case not found.</p></div>;
@@ -67,16 +69,28 @@ export default function CaseDetailPage() {
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-3xl mx-auto space-y-6">
-
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        ← Queue
-                    </button>
-                    <span className="text-gray-200">/</span>
-                    <span className="text-sm text-gray-500 font-mono">{c.external_id}</span>
+                <div className="flex justify-between">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/')}
+                            className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            ← Queue
+                        </button>
+                        <span className="text-gray-200">/</span>
+                        <span className="text-sm text-gray-500 font-mono">{c.external_id}</span>
+                    </div>
+                    {
+                        c.status === 'unassigned' && (
+                            <button
+                                onClick={() => assignCase()}
+                                disabled={isPending}
+                                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                            >
+                                {isPending ? 'Assigning...' : 'Take case'}
+                            </button>
+                        )
+                    }
                 </div>
 
                 <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
