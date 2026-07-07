@@ -1,5 +1,5 @@
+import uuid
 from datetime import datetime, timedelta
-
 from app.core.database import SessionLocal
 from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.case import Case  # noqa: F401
@@ -8,7 +8,7 @@ from app.models.decision import Decision  # noqa: F401
 from app.models.escalation import Escalation  # noqa: F401
 from app.models.queue import Queue  # noqa: F401
 from app.models.user import User  # noqa: F401
-from app.models.enums import CaseStatus, Severity
+from app.models.enums import CaseStatus, Severity, Role
 from tests.factories import CaseFactory, QueueFactory
 
 
@@ -29,6 +29,15 @@ def seed():
             severity_levels=["high", "critical"],
             sla_hours=4,
         )
+
+        db.add(User(
+            id=uuid.UUID('deaf35cb-f139-4e70-9bd6-4515f68c89a7'),
+            email='analyst@sentinel.com',
+            hashed_password='placeholder',
+            full_name='Demo Analyst',
+            role=Role.ANALYST,
+            skills=[],
+        ))
 
         now = datetime.now()
 
@@ -123,7 +132,7 @@ def seed():
         )
 
         db.commit()
-        print("✓ Seeded 2 queues and 10 cases")
+        print("✓ Seeded 1 user, 2 queues and 10 cases")
 
     except Exception as e:
         db.rollback()
