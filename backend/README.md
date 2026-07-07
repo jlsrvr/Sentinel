@@ -1,0 +1,1 @@
+a point of attention my specs passed when the endpoints of the api had `db.flush()` instead of `db.commit()` which meant they weren't actually persisting records in the db. Would need to change that for proper testing in a production app.

@@ -37,7 +37,7 @@ async def create_decision(
         time_on_case_secs=body.time_on_case_secs,
     )
     db.add(decision)
-    db.flush()
+    db.commit()
 
 @router.get("/", response_model=list[DecisionListResponse])
 async def list_decision(case_id: uuid.UUID, db: Session = Depends(get_db)):
