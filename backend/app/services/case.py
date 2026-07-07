@@ -31,3 +31,6 @@ def transition(case: Case, target_status: CaseStatus):
 def assign(case: Case, reviewer_id: uuid.UUID):
     transition(case, CaseStatus.ASSIGNED)
     case.assigned_to = reviewer_id
+
+def start_review(case: Case):
+    transition(case, CaseStatus.IN_REVIEW)

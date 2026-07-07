@@ -4,7 +4,7 @@ from freezegun import freeze_time
 from datetime import datetime
 from tests.factories import CaseFactory
 from app.models.enums import CaseStatus
-from app.services.case import can_transition, transition, assign
+from app.services.case import can_transition, transition, assign, start_review
 from app.core.exceptions import InvalidTransitionError
 
 def test_unassigned_can_transition_to_assigned():
@@ -81,3 +81,10 @@ def test_assign_sets_reviewer_id():
 
     assert case.assigned_at == datetime(2024, 1, 15, 10, 0, 0)
     assert case.assigned_to == reviewer_id
+
+def test_start_review_changes_status_to_in_review():
+    case = CaseFactory.build(status=CaseStatus.ASSIGNED)
+
+    start_review(case)
+
+    assert case.status == CaseStatus.IN_REVIEW
