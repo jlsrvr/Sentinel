@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAssignCase, useCase, useDecisions } from '../hooks/useCases';
+import { useAssignCase, useCase, useDecisions, useStartReview } from '../hooks/useCases';
 import { formatLabel } from '../utils/format';
 import type { Severity, CaseStatus } from '../types/case';
 
@@ -58,7 +58,8 @@ export default function CaseDetailPage() {
     const navigate = useNavigate();
     const { data: c, isLoading: caseLoading, error: caseError } = useCase(id!);
     const { data: decisions, isLoading: decisionsLoading } = useDecisions(id!);
-    const { mutate: assignCase, isPending } = useAssignCase(id!);
+    const { mutate: assignCase, isPending: Assigning } = useAssignCase(id!);
+    const { mutate: startReview, isPending: StartingReview } = useStartReview(id!);
 
 
     if (caseLoading) return <div className="min-h-screen bg-gray-50 p-8"><p className="text-sm text-gray-400">Loading case...</p></div>;
@@ -84,10 +85,21 @@ export default function CaseDetailPage() {
                         c.status === 'unassigned' && (
                             <button
                                 onClick={() => assignCase()}
-                                disabled={isPending}
+                                disabled={Assigning}
                                 className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
                             >
-                                {isPending ? 'Assigning...' : 'Take case'}
+                                {Assigning ? 'Assigning...' : 'Take case'}
+                            </button>
+                        )
+                    }
+                    {
+                        c.status === 'assigned' && (
+                            <button
+                                onClick={() => startReview()}
+                                disabled={StartingReview}
+                                className="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                            >
+                                {StartingReview ? 'Starting review...' : 'Start review'}
                             </button>
                         )
                     }

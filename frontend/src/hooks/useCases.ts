@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchCases, fetchCase, fetchDecisions, assignCase } from '../api/cases';
+import { fetchCases, fetchCase, fetchDecisions, assignCase, startReview } from '../api/cases';
 import type { Case } from '../types/case';
 import type { Decision } from '../types/decision';
 
@@ -33,3 +33,14 @@ export function useAssignCase(caseId: string) {
         },
     });
 }
+
+export function useStartReview(caseId: string) {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: () => startReview(caseId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['case', caseId] });
+        },
+    });
+}
+

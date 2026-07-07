@@ -45,7 +45,7 @@ def assign_case(
         raise HTTPException(status_code=409, detail=str(e))
     db.commit()
 
-@router.post("/{case_id}/start_review", status_code=201)
+@router.post("/{case_id}/start-review", status_code=201)
 def start_case_review(
     case: Case = Depends(get_case_or_404),
     db: Session = Depends(get_db)

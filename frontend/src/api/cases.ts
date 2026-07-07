@@ -37,4 +37,11 @@ async function assignCase(caseId: string): Promise<void> {
     if (!response.ok) throw new Error('Failed to assign case');
 }
 
-export { fetchCases, fetchCase, fetchDecisions, assignCase };
+async function startReview(caseId: string): Promise<void> {
+    const response = await fetch(`${BASE_URL}/api/v1/cases/${caseId}/start-review`, {
+        method: 'POST'
+    });
+    if (!response.ok) throw new Error('Failed to start review');
+}
+
+export { fetchCases, fetchCase, fetchDecisions, assignCase, startReview };
