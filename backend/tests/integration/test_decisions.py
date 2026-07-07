@@ -51,6 +51,46 @@ def test_decision_create_returns_409_when_case_not_in_review(authenticated_clien
 
     assert response.status_code == 409
 
+def test_decision_create_escalates_case_when_action_is_escalate(authenticated_client, case_factory, db):
+    case = case_factory.create(status=CaseStatus.IN_REVIEW)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/decisions", json=VALID_DECISION_BODY)
+
+    db.refresh(case)
+    assert case.status == CaseStatus.ESCALATED
+
+def test_decision_create_does_not_change_case_when_action_is_request_info(authenticated_client, case_factory, db):
+    body = {
+        "action": Action.REQUEST_INFO.value,
+        "rationale": "need more info",
+        "policy_reference": None,
+        "confidence": ConfidenceLevel.HIGH.value,
+        "time_on_case_secs": 600,
+    }
+    case = case_factory.create(status=CaseStatus.IN_REVIEW)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/decisions", json=body)
+
+    db.refresh(case)
+    assert case.status == CaseStatus.IN_REVIEW
+
+def test_decision_create_resolves_case_when_action_is_restrict(authenticated_client, case_factory, db):
+    resolving_body = {
+        "action": Action.RESTRICT.value,
+        "rationale": "BLOCK",
+        "policy_reference": None,
+        "confidence": ConfidenceLevel.HIGH.value,
+        "time_on_case_secs": 600,
+    }
+    case = case_factory.create(status=CaseStatus.IN_REVIEW)
+
+    response = authenticated_client.post(f"/api/v1/cases/{case.id}/decisions", json=resolving_body)
+
+    db.refresh(case)
+    assert case.status == CaseStatus.RESOLVED
+    assert case.resolved_at is not None
+
+
 def test_list_decisions_wrong_case(client):
     case_id = str(uuid.uuid4())
 

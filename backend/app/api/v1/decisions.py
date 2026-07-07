@@ -5,10 +5,12 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.case import Case
 from app.models.decision import Decision
-from app.models.enums import CaseStatus
+from app.models.enums import CaseStatus, Action
 from app.core.database import get_db
 from app.schemas.decision import DecisionCreateRequest, DecisionListResponse
 from app.core.dependencies import get_current_user_id
+from app.services.case import transition
+from app.core.exceptions import InvalidTransitionError
 
 router = APIRouter(prefix="/cases/{case_id}/decisions", tags=["decisions"])
 
@@ -37,6 +39,12 @@ async def create_decision(
         time_on_case_secs=body.time_on_case_secs,
     )
     db.add(decision)
+    if body.action == Action.ESCALATE:
+        transition(case, CaseStatus.ESCALATED)
+    elif body.action == Action.REQUEST_INFO :
+        pass
+    else:
+        transition(case, CaseStatus.RESOLVED)
     db.commit()
 
 @router.get("/", response_model=list[DecisionListResponse])
