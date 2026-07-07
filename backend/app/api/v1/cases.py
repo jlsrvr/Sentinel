@@ -40,4 +40,4 @@ def assign_case(
         assign(case, reviewer_id)
     except (InvalidTransitionError, ValueError) as e:
         raise HTTPException(status_code=409, detail=str(e))
-    db.flush()
+    db.commit()
