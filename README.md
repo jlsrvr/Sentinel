@@ -57,13 +57,13 @@ Interactive API docs at `http://localhost:8000/docs`
 
 ## Features
 
-- Case queue with severity-based routing and skill-based assignment ⏳
-- Content review interface with decision and audit logging ⏳
+- Case queue with severity-based routing and skill-based assignment ✔️
+- Content review interface with decision and audit logging ⏯️
 - One-click escalation paths and full decision history per case ⏳
 - Role-based permissions (analyst, senior reviewer, policy, admin) ⏳
-- Reviewer wellbeing: content blurring, exposure tracking, exposure limits ⏳
+- Reviewer wellbeing: content blurring, exposure tracking, exposure limits ⏭️
 - Metrics dashboard: queue health, throughput, average handling time ⏳
-- Append-only audit trail on every action ⏳
+- Append-only audit trail on every action ⏭️
 - Reusable API layer designed for new review workflow onboarding ⏳
 
 ---
